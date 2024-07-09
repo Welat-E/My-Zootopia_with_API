@@ -1,29 +1,21 @@
-import json
-
-def load_data(file_path):
-    """loads animal data from a json file"""
-    with open(file_path, "r") as file:
-        return json.load(file)
-    
-
-def serialize_animal_data(animals_data):
-    """serializes animal data, currently returns it unchanged"""
-    return animals_data  # placeholder for future serialization logic
-
+import data_fetcher
 
 def generate_html(animals_data):
     """generates HTML for animal cards"""
     html = ""
     for animal in animals_data:
-        html += '<li class="cards__item">'
-        html += f'<h2>{animal.get("name", "Unknown Animal")}</h2>'
-        html += '<p class="cards__text">'
-        characteristics = animal.get("characteristics", {})
-        html += f'<strong>Diet:</strong> {characteristics.get("diet", "Unknown")}<br>'
-        html += f'<strong>Location:</strong> {animal.get("locations", ["Unknown"])[0]}<br>'
-        animal_type = animal.get("type") or characteristics.get("type", "Unknown")
-        html += f'<strong>Type:</strong> {animal_type}<br>'
-        html += '</p></li>'
+        if 'error' in animal:
+            html += f"<h2>{animal['name']} doesn't exist or an error occurred: {animal['error']}</h2>"
+        else:
+            html += '<li class="cards__item">'
+            html += f'<h2>{animal.get("name", "Unknown Animal")}</h2>'
+            html += '<p class="cards__text">'
+            characteristics = animal.get("characteristics", {})
+            html += f'<strong>Diet:</strong> {characteristics.get("diet", "Unknown")}<br>'
+            html += f'<strong>Location:</strong> {animal.get("locations", ["Unknown"])[0]}<br>'
+            animal_type = animal.get("type") or characteristics.get("type", "Unknown")
+            html += f'<strong>Type:</strong> {animal_type}<br>'
+            html += '</p></li>'
     return html
 
 
@@ -37,9 +29,9 @@ def write_html(html_content):
 
 
 def main():
-    animals_data = load_data('animals_data.json')
-    serialized_data = serialize_animal_data(animals_data) #serialization added
-    html_content = generate_html(serialized_data)
+    animal_name = input("Please enter an animal: ")
+    animals_data = data_fetcher.fetch_data(animal_name)
+    html_content = generate_html(animals_data)
     write_html(html_content)
 
 
